@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Add Transaction</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="user">User:</label>
+        <select id="user" name="user">
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+            {% end-for %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="recipient">Recipient:</label>
+        <select id="recipient" name="recipient">
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+            {% end-for %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="0" required>
+    </div>
+    <button type="submit">Add Transaction</button>
+</form>
+{% end-block %}

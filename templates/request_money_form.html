@@ -1,0 +1,8 @@
+{% load static %}
+{% load crispy_forms_tags %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% crispy request_money_form %}
+    <button type="submit" class="btn btn-primary" name="request_money">Request Money</button>
+</form>

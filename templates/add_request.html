@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Add Request</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="user" class="form-label">User:</label>
+                <select id="user" name="user" class="form-select">
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="recipient" class="form-label">Recipient:</label>
+                <select id="recipient" name="recipient" class="form-select">
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message:</label>
+                <textarea id="message" name="message" class="form-control" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Request</button>
+        </form>
+    </div>
+{% endblock %}
