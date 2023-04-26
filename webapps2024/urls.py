@@ -23,7 +23,6 @@ from currency_conversion import views as cc_views
 from payapp import views as pa_views
 from authapp import views
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('add_user/', add_user, name='add_user'),
