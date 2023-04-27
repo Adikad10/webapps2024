@@ -28,6 +28,7 @@ class RequestMoneyForm(forms.Form):
     sender_email = forms.EmailField()
     amount = forms.DecimalField(min_value=0.01)
     currency = forms.ChoiceField(choices=CURRENCY_CHOICES)
+    status = forms.ChoiceField(choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], initial='pending', required=False)
 
     def clean_sender_email(self):
         email = self.cleaned_data['sender_email']

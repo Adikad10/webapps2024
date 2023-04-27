@@ -50,7 +50,7 @@ def get_balance(user):
             conversion_rate = get_conversion_rate(transaction.currency, user.currency)
             balance += transaction.amount * conversion_rate
             print(f'Received transaction: {transaction.amount}, Updated balance: {balance}')  # Debugging: Received transaction and updated balance
-
+    
     user.balance = balance
     user.save()
 
@@ -90,6 +90,7 @@ def make_payment(sender, recipient, amount, currency):
 
     transaction = Transaction(user=sender, recipient=recipient, amount=Decimal(amount), currency=currency)  # Convert amount to Decimal
     transaction.save()
+    print(f'Transaction ID: {transaction.id}, Sender: {sender}, Recipient: {recipient}, Amount: {amount}, Currency: {currency}')
 
 
 def get_conversion_rate(currency1='USD', currency2='EUR', amount_of_currency1='1'):
@@ -114,8 +115,17 @@ def check_balance(request):
     return render(request, 'check_balance.html', {'balance': balance})
 
 
+@login_required
 def check_transactions(request):
-    transactions = Transaction.objects.filter(user=request.user)
+    all_transactions = Transaction.objects.filter(sender=request.transaction) | Transaction.objects.filter(recipient=request.transaction)
+
+    for transaction in all_transactions:
+        if transaction.sender == transaction.user_id:
+            transaction.transaction_type = 'Sent'
+        elif transaction.recipient == transaction.recipient_id:
+            transaction.transaction_type = 'Received'
+
+    transactions = all_transactions.order_by('-date_created')
     return render(request, 'check_transactions.html', {'transactions': transactions})
 
 
@@ -133,8 +143,6 @@ def dashboard(request):
 
     send_money_form = SendMoneyForm()
     request_money_form = RequestMoneyForm()
-
-    money_requests = Request.objects.filter(recipient=request.user)
 
     if request.method == 'POST':
         if 'send_money' in request.POST:
@@ -154,7 +162,7 @@ def dashboard(request):
                         f'Send Money: Sender: {sender}, Recipient: {recipient}, Amount: {amount}, Currency: {currency}')  # Debugging: Print send money info
                     return redirect('dashboard')
 
-        elif 'request_money' in request.POST:
+        if 'request_money' in request.POST:
             request_money_form = RequestMoneyForm(request.POST)
             if request_money_form.is_valid():
                 sender_email = request_money_form.cleaned_data['sender_email']
@@ -169,7 +177,7 @@ def dashboard(request):
                 print(
                     f'Request Money: Sender: {sender}, Recipient: {recipient}, Amount: {amount}, Currency: {currency}')  # Debugging: Print request money info
                 return redirect('dashboard')
-
+        """
         elif 'approve_request' in request.POST or 'reject_request' in request.POST:
             request_id = request.POST.get('request_id')
             if request_id:
@@ -191,7 +199,9 @@ def dashboard(request):
                 else:
                     messages.error(request, 'Invalid action')
                 return redirect('dashboard')
+        """
 
+    money_requests = Request.objects.filter(recipient=request.user)
     context = {
         'balance': balance,
         'transactions': transactions,

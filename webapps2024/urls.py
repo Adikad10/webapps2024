@@ -17,12 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic.base import RedirectView
 from register.views import get_user, add_user, add_transaction, add_request
 from currency_conversion import views as cc_views
 from payapp import views as pa_views
 from authapp import views
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +31,5 @@ urlpatterns = [
     path('baseURL/', include('currency_conversion.urls')),
     path('conversion/<str:currency1>/<str:currency2>/<str:amount_of_currency1>/', cc_views.conversion),
     path('dashboard/', pa_views.dashboard, name='dashboard'),
+    path('register/', include('register.urls')),
 ]

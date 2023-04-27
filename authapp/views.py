@@ -9,6 +9,7 @@ from django.contrib import messages
 from payapp.forms import SendMoneyForm, RequestMoneyForm
 from payapp.views import make_payment
 from currency_conversion.views import get_converted_amount
+from register.models import Request
 
 
 @login_required
@@ -78,13 +79,14 @@ def request_money_view(request):
             sender = User.objects.get(email=sender_email)
             amount = request_money_form.cleaned_data['amount']
             currency = request_money_form.cleaned_data['currency']
-            converted_amount = get_converted_amount(amount, currency, sender.currency)# convert the amount to the default currency
-            request_obj = request.objects.create(
-                user=request.user,
-                sender=sender,
-                amount=converted_amount, # save the converted amount in the database
-                currency=currency, # save the selected currency in the database
-                status='pending',
+            status = request_money_form.cleaned_data['status']
+            converted_amount = get_converted_amount(amount, currency, sender.currency)
+            request_obj = Request.objects.create(
+                user=sender,
+                recipient=request.user,
+                amount=converted_amount,
+                currency=currency,
+                status=status,
             )
             request_obj.save()
             messages.success(request, 'Money request sent successfully')
@@ -97,9 +99,8 @@ def request_money_view(request):
 def approve_money_request(request):
     request_id = request.POST.get('request_id')
     if request_id:
-        money_request = request.objects.get(id=request_id, recipient=request.user)
-        sender_email = money_request.user.email
-        sender = User.objects.get(email=sender_email)
+        money_request = Request.objects.get(id=request_id, recipient=request.user)
+        sender = money_request.user
         recipient = request.user
         amount = money_request.amount
         currency = money_request.currency
@@ -117,7 +118,7 @@ def approve_money_request(request):
 def reject_money_request(request):
     request_id = request.POST.get('request_id')
     if request_id:
-        money_request = request.objects.get(id=request_id, recipient=request.user)
+        money_request = Request.objects.get(id=request_id, recipient=request.user)
         money_request.status = 'rejected'
         money_request.save()
         messages.success(request, 'Money request rejected')

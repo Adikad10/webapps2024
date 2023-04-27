@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <table class="table table-striped">
+    <h1>Admin Dashboard</h1>
+    <h2>User Accounts</h2>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }} - {{ user.email }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Transactions</h2>
+    <table>
         <thead>
         <tr>
             <th>Type</th>
@@ -19,10 +28,6 @@
                 <td>{{ transaction.amount }}</td>
                 <td>{{ transaction.currency }}</td>
                 <td>{{ transaction.date|date:"Y-m-d H:i" }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="5">No transactions found.</td>
             </tr>
         {% endfor %}
         </tbody>

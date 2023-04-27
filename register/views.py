@@ -3,6 +3,16 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, JsonResponse
 from .forms import RegistrationForm
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from register.decorators import admin_required
+from register.models import CustomUser, Transaction
+
+@login_required
+@admin_required
+def admin_dashboard(request):
+    users = CustomUser.objects.all()
+    transactions = Transaction.objects.all()
+    return render(request, 'admin_dashboard.html', {'users': users, 'transaction': transactions})
 
 
 def home(request):
@@ -19,7 +29,7 @@ def register(request):
             return redirect('home')
     else:
         form = RegistrationForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'register.html', {'form': form})
 
 
 def add_user(request):
